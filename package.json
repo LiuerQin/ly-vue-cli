@@ -1,11 +1,11 @@
 {
-  "name": "boom-first-cli",
+  "name": "ly-vue-cli",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "boom-first-cli": "./index.js"
+    "ly-vue-cli": "./index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

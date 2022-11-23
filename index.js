@@ -1,29 +1,34 @@
 #!/usr/bin/env node
- // const {program} = require("commander");
-// const { default: inquirer } = require("inquirer");
 
-import {
-    program
-} from "commander";
 import inquirer from "inquirer";
 import {
-    exec,
-    execSync
+    exec
 } from "child_process"
 import path from "path";
 import fs from "fs";
 import clui from "clui";
 import chalk from "chalk";
+import util from "util"
 
-async function myCli(projectName) {
-    // 实例化loading
-    const Spinner = clui.Spinner;
-    var countdown = new Spinner('Removing directory...  ', ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']);
+const execPromise = util.promisify(exec);
 
-    const dir = path.resolve(process.cwd(), "./vue3-ts-vite-framework")
-    const exists = fs.existsSync(dir)
-    if (exists) {
-        try {
+async function myCli(projectNameObj) {
+    try {
+        const {frame: fm} = await inquirer.prompt({
+            name: "frame",
+            message: `Please choose framework:`,
+            type: 'list',
+            choices: Object.keys(projectNameObj)
+        })
+        const projectName = projectNameObj[fm]
+        // 实例化loading
+        const Spinner = clui.Spinner;
+        var loading = new Spinner('Removing directory...  ', ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷']);
+
+        const dir = path.resolve(process.cwd(), projectName)
+        // 判断文件夹是否已经存在
+        const exists = fs.existsSync(dir)
+        if (exists) {
             const ans = await inquirer.prompt({
                 name: "removeDir",
                 message: `The "${projectName}" directory already exists, remove?`,
@@ -31,32 +36,34 @@ async function myCli(projectName) {
             })
 
             if (ans.removeDir) {
-                countdown.start();
-                execSync(`rm -rf ${dir}`)
-                countdown.stop();
+
+                loading.start();
+                await execPromise(`rm -rf ${dir}`)
+                loading.stop();
+
                 console.log(chalk.cyan(`The "${projectName}" directory has been removed.`))
             }
-        } catch (err) {
-            console.log("err", err)
         }
+
+        // 从github下载
+        const command = `git clone http://10.2.7.13/cli/${projectName}.git ${dir}`
+        console.log(command)
+        loading.message(`Cloning into ${projectName}...`);
+        loading.start();
+        await execPromise(command)
+
+        loading.stop();
+
+        console.log(`${chalk.cyan("Done!")}`)
+        console.log(`${chalk.green("Success!")}`)
+    } catch (err) {
+        console.log(chalk.red(err))
+    } finally {
+        loading.stop();
     }
-
-countdown.message(`Cloning into ${projectName}...`);
-countdown.start();
-    const command = `git clone https://github.com/LiuerQin/${projectName}.git ${dir}`
-    exec(command, (err, stdout, stderr) => {
-
-        countdown.stop();
-
-        if (err) {
-            // console.log(typeof err, err)
-            console.log(chalk.red(err))
-        } else {
-            console.log(`${chalk.cyan("Done!")}`)
-            console.log(`${chalk.green("Success!")}`)
-        }
-        return
-    })
 }
 
-myCli("vue3-ts-vite-framework")
+myCli({
+    "Vue3.x": "ly-vue3-framework",
+    // "Vue2.x": "ly-vue2-framework",
+})

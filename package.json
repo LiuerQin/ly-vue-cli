@@ -1,0 +1,21 @@
+{
+  "name": "boom-first-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "boom-first-cli": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.1.2",
+    "clui": "^0.3.6",
+    "commander": "^9.4.1",
+    "inquirer": "^9.1.4"
+  }
+}
